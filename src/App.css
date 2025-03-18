@@ -1,0 +1,84 @@
+.app-container {
+  display: flex;
+  height: 100%;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #f5f5f5;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.new-chat-btn {
+  background-color: #10a37f;
+  color: #fff;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+  font-size: 16px;
+}
+
+.new-chat-btn:hover {
+  background-color: #0e8a6d;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #ffffff;
+  padding: 16px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.chat-header h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.dark-mode-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+}
+
+.app-container.dark-mode .sidebar {
+  background-color: #2f2f2f;
+}
+
+.app-container.dark-mode .new-chat-btn {
+  background-color: #4f4f4f;
+  color: #fff;
+}
+
+.app-container.dark-mode .main-content {
+  background-color: #121212;
+}
+
+.app-container.dark-mode .chat-header {
+  background-color: #1f1f1f;
+}
+
+.app-container.dark-mode .chat-header h1 {
+  color: #fff;
+}
+
+.gemma-logo {
+  height: 100px;
+  margin-right: 16px;
+}
+
+.app-container.dark-mode .dark-mode-toggle svg {
+  color: #fff;
+}
