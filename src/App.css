@@ -1,34 +1,136 @@
-.app-container {
-  display: flex;
-  height: 100%;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
+body, html, #root {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #fff;
+  color: #111;
+}
+
+/* ---- Sidebar ---- */
 .sidebar {
-  width: 250px;
-  background-color: #f5f5f5;
-  padding: 16px;
-  box-sizing: border-box;
+  width: 260px;
+  min-width: 260px;
+  background-color: #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 12px;
+  gap: 12px;
+  border-right: 1px solid #ddd;
+  overflow: hidden;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0 8px;
+}
+
+.gemma-logo {
+  height: 60px;
+  object-fit: contain;
 }
 
 .new-chat-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background-color: #10a37f;
   color: #fff;
   border: none;
-  padding: 12px 16px;
-  border-radius: 5px;
+  padding: 10px 16px;
+  border-radius: 8px;
   cursor: pointer;
-  width: 100%;
-  font-size: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.2s;
 }
 
 .new-chat-btn:hover {
   background-color: #0e8a6d;
 }
 
+.session-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.session-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #333;
+  transition: background-color 0.15s;
+  position: relative;
+}
+
+.session-item:hover {
+  background-color: #e0e0e0;
+}
+
+.session-item.active {
+  background-color: #d4edda;
+  color: #0e8a6d;
+  font-weight: 600;
+}
+
+.session-icon {
+  flex-shrink: 0;
+  font-size: 14px;
+  opacity: 0.6;
+}
+
+.session-title {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.delete-session-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: #aaa;
+  padding: 2px 4px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.session-item:hover .delete-session-btn {
+  opacity: 1;
+}
+
+.delete-session-btn:hover {
+  color: #e74c3c;
+}
+
+/* ---- Main Content ---- */
 .main-content {
   flex: 1;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   background-color: #fff;
 }
 
@@ -36,30 +138,63 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #ffffff;
-  padding: 16px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  padding: 14px 20px;
+  background-color: #fff;
+  border-bottom: 1px solid #eee;
+  flex-shrink: 0;
 }
 
-.chat-header h1 {
-  margin: 0;
-  font-size: 24px;
+.header-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80%;
 }
 
 .dark-mode-toggle {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 24px;
+  font-size: 20px;
+  color: #555;
+  padding: 4px;
+  border-radius: 6px;
+  transition: color 0.2s;
+}
+
+.dark-mode-toggle:hover {
+  color: #10a37f;
+}
+
+/* ---- Dark Mode ---- */
+.app-container.dark-mode {
+  background-color: #121212;
+  color: #eee;
 }
 
 .app-container.dark-mode .sidebar {
-  background-color: #2f2f2f;
+  background-color: #1a1a1a;
+  border-right-color: #333;
 }
 
 .app-container.dark-mode .new-chat-btn {
-  background-color: #4f4f4f;
-  color: #fff;
+  background-color: #1e7a61;
+}
+
+.app-container.dark-mode .session-item {
+  color: #ccc;
+}
+
+.app-container.dark-mode .session-item:hover {
+  background-color: #2a2a2a;
+}
+
+.app-container.dark-mode .session-item.active {
+  background-color: #1e3d30;
+  color: #4eca9e;
 }
 
 .app-container.dark-mode .main-content {
@@ -67,18 +202,18 @@
 }
 
 .app-container.dark-mode .chat-header {
-  background-color: #1f1f1f;
+  background-color: #1a1a1a;
+  border-bottom-color: #333;
 }
 
-.app-container.dark-mode .chat-header h1 {
-  color: #fff;
+.app-container.dark-mode .header-title {
+  color: #eee;
 }
 
-.gemma-logo {
-  height: 100px;
-  margin-right: 16px;
+.app-container.dark-mode .dark-mode-toggle {
+  color: #aaa;
 }
 
-.app-container.dark-mode .dark-mode-toggle svg {
-  color: #fff;
+.app-container.dark-mode .dark-mode-toggle:hover {
+  color: #4eca9e;
 }

@@ -1,81 +1,95 @@
-// src/Chat.js
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './Chat.css';
-import { FaUser, FaRobot } from 'react-icons/fa';
+import { FaUser, FaRobot, FaPaperPlane, FaSpinner } from 'react-icons/fa';
 import ReactMarkdown from 'react-markdown';
 
-function Chat() {
-  const [messages, setMessages] = useState([]);
+function Chat({ messages, onUpdateMessages }) {
   const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   const sendMessage = async () => {
-    if (!input.trim()) return;
+    const trimmed = input.trim();
+    if (!trimmed || isLoading) return;
 
-    const userMessage = { sender: 'user', text: input };
-    const botPlaceholder = { sender: 'bot', text: 'Thinking...' };
+    const userMessage = { sender: 'user', text: trimmed };
+    const botPlaceholder = { sender: 'bot', text: '' };
     const newMessages = [...messages, userMessage, botPlaceholder];
-    setMessages(newMessages);
+    onUpdateMessages(newMessages);
+    setInput('');
+    setIsLoading(true);
 
     const botIndex = newMessages.length - 1;
-    setInput('');
 
-    const ollamaMessages = newMessages.map((m) => ({
+    const ollamaMessages = [...messages, userMessage].map((m) => ({
       role: m.sender === 'user' ? 'user' : 'assistant',
       content: m.text,
     }));
 
     try {
-      const response = await fetch("http://127.0.0.1:11434/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('http://127.0.0.1:11434/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: "gemma3:1b",
+          model: 'gemma3:1b',
           messages: ollamaMessages,
           stream: false,
         }),
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("API Error Response:", errorText);
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
       const data = await response.json();
-      console.log("Parsed JSON Response:", data);
-      const botReply = data.message && data.message.content 
-                        ? data.message.content 
-                        : "No response from model.";
+      const botReply = data.message?.content || 'No response from model.';
 
       let currentIndex = 0;
-      const interval = 1;
-
       function typeCharacter() {
         if (currentIndex <= botReply.length) {
-          setMessages((prev) => {
+          onUpdateMessages(prev => {
             const updated = [...prev];
             updated[botIndex] = { sender: 'bot', text: botReply.slice(0, currentIndex) };
             return updated;
           });
           currentIndex++;
-          setTimeout(typeCharacter, interval);
+          setTimeout(typeCharacter, 8);
+        } else {
+          setIsLoading(false);
         }
       }
       typeCharacter();
 
     } catch (error) {
-      console.error("Error calling the chat API:", error);
-      setMessages((prev) => {
+      console.error('Error calling the chat API:', error);
+      onUpdateMessages(prev => {
         const updated = [...prev];
-        updated[botIndex] = { sender: 'bot', text: 'Sorry, there was an error contacting the model.' };
+        updated[botIndex] = {
+          sender: 'bot',
+          text: '⚠️ Could not reach Ollama. Make sure it is running at `http://127.0.0.1:11434`.',
+        };
         return updated;
       });
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="chat-wrapper">
       <div className="messages-container">
+        {messages.length === 0 && (
+          <div className="empty-state">
+            <FaRobot className="empty-icon" />
+            <p>Start a conversation with Gemma3</p>
+          </div>
+        )}
         {messages.map((msg, idx) => (
           <div
             key={idx}
@@ -85,20 +99,29 @@ function Chat() {
               {msg.sender === 'user' ? <FaUser /> : <FaRobot />}
             </div>
             <div className="message-text">
-              <ReactMarkdown>{msg.text}</ReactMarkdown>
+              {msg.text === '' && msg.sender === 'bot'
+                ? <span className="thinking"><FaSpinner className="spin" /> Thinking...</span>
+                : <ReactMarkdown>{msg.text}</ReactMarkdown>
+              }
             </div>
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
+
       <div className="input-container">
         <input
+          ref={inputRef}
           type="text"
-          placeholder="Type your message..."
+          placeholder="Message Gemma3..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') sendMessage(); }}
+          disabled={isLoading}
         />
-        <button onClick={sendMessage}>Send</button>
+        <button onClick={sendMessage} disabled={isLoading || !input.trim()} title="Send">
+          <FaPaperPlane />
+        </button>
       </div>
     </div>
   );
